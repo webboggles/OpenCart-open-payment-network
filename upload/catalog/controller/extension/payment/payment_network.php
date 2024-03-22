@@ -244,9 +244,15 @@ class ControllerExtensionPaymentPaymentNetwork extends Controller {
             'customerOCSESSID'      => $this->session->getId()
         );
 
-        if (filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        if (isset($_SERVER["HTTP_CF_CONNECTING_IP"])){
+			$_SERVER['REMOTE_ADDR'] = $_SERVER["HTTP_CF_CONNECTING_IP"]; // Get client ip if using Cloudflare proxy
+	    }
+        if (filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) || filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) { // Also verify ipv6 in addition to ipv4
             $params['remoteAddress'] = $_SERVER['REMOTE_ADDR'];
         }
+		if (!isset($params['remoteAddress'])){
+			$params['remoteAddress'] = '127.0.0.1';	// use localhost if ip is still not set
+		}
 
         /**
          * Wallets
