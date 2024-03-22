@@ -41,18 +41,18 @@ class ControllerExtensionPaymentPaymentNetwork extends Controller {
 
     public function index() {
         // Only load where the confirm action is asking us to show the form!
-        if ($_REQUEST['route'] == 'checkout/confirm') {
+        if (strpos($_REQUEST['route'], 'checkout/confirm') >= 0) {
             $this->load->language(self::$url);
 
             $integrationType = $this->config->get(self::$curi . '_module_type');
 
             if (in_array($integrationType, ['hosted', 'hosted_v2', 'hosted_v3'], true)) {
                 return $this->createHostedForm($integrationType);
-            }
-
-            if (in_array($integrationType, ['direct'], true)) {
+            }else if (in_array($integrationType, ['direct'], true)) {
                 return $this->createDirectForm();
-            }
+            }else {
+				return new \Exception('Unable to load integration type');
+			}
         } else {
             return new \Exception('Unauthorized!');
         }
